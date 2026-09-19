@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Resize widget</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0}body{font:15px/1.5 'Avenir Next',Segoe UI,sans-serif;color:#243b32;background:#eef5ef}main{padding:18px}h2{font:600 21px/1.2 Georgia,serif;margin:0 0 8px}p{margin:8px 0 14px}button,select{font:inherit;padding:8px 11px;border:1px solid #7d9586;border-radius:4px;background:#fafcf9;color:#203a2d}button{cursor:pointer}button:hover{background:#dceade}button:focus-visible,select:focus-visible{outline:3px solid #b2671c;outline-offset:3px}select{width:100%;margin:5px 0 9px}small{display:block;overflow-wrap:anywhere;color:#50695b}#extra p{border-top:1px solid #c1d4c6;padding-top:12px}[hidden]{display:none!important}#status{font-size:13px}
+</style>
+<main id="content">
+<h2 id="title">Widget A</h2><small id="origin"></small>
+<p id="description">This content belongs to a separate document. Ask the host for more room.</p>
+<button id="add">Add a reply + resize</button>
+<button id="sibling" hidden>Send resize from widget B</button>
+<div id="payloads" hidden>
+<label for="payload">Payload from the trusted widget</label>
+<select id="payload">
+<option value="huge">height: 1e9</option><option value="negative">height: -50</option>
+<option value="string">A bare string</option><option value="null">null payload</option>
+<option value="missingType">Missing type</option><option value="wrongType">Wrong type</option>
+<option value="missingHeight">Missing height</option><option value="nan">height: NaN</option>
+<option value="infinity">height: Infinity</option><option value="numericString">height: "350"</option>
+<option value="nullHeight">height: null</option><option value="boolean">height: true</option>
+<option value="array">An array</option><option value="valid">height: 350</option>
+</select><button id="send">Send payload</button>
+</div>
+<p id="status" role="status"></p><div id="extra"></div>
+</main>
+<script>
+const params = new URLSearchParams(location.search);
+// Public demonstration configuration. This is not authentication of arbitrary hosts.
+const hostOrigin = params.get('hostOrigin');
+const isSibling = params.get('role') === 'sibling';
+const showPayloads = params.get('payloads') === '1';
+const allowedHost = (() => { try { const u = new URL(hostOrigin); return ['http:', 'https:'].includes(u.protocol) && u.origin === hostOrigin; } catch { return false; } })();
+document.querySelector('#origin').textContent = location.origin;
+document.querySelector('#title').textContent = isSibling ? 'Widget B · same origin' : 'Widget A · trusted window';
+document.querySelector('#add').hidden = isSibling;
+document.querySelector('#sibling').hidden = !isSibling;
+document.querySelector('#payloads').hidden = !showPayloads || isSibling;
+if (isSibling) document.querySelector('#description').textContent = 'Same origin as A, but a different window. Can this frame resize A?';
+function send(data) {
+  if (!allowedHost) { document.querySelector('#status').textContent = 'Open this widget from a demo host.'; return; }
+  parent.postMessage(data, hostOrigin);
+  document.querySelector('#status').textContent = 'Message sent to the host.';
+}
+function measure() { send({ type: 'resize', height: Math.ceil(document.querySelector('#content').getBoundingClientRect().height) + 4 }); }
+document.querySelector('#add').onclick = () => {
+  const p = document.createElement('p'); p.textContent = 'Another reply has arrived. The widget measures its content and requests a new height.';
+  document.querySelector('#extra').append(p); measure();
+};
+document.querySelector('#sibling').onclick = () => send({ type: 'resize', height: 80 });
+const payloads = {
+ huge: {type:'resize',height:1e9}, negative:{type:'resize',height:-50}, string:'resize please', null:null,
+ missingType:{height:350}, wrongType:{type:'status',height:350}, missingHeight:{type:'resize'},
+ nan:{type:'resize',height:NaN}, infinity:{type:'resize',height:Infinity}, numericString:{type:'resize',height:'350'},
+ nullHeight:{type:'resize',height:null}, boolean:{type:'resize',height:true}, array:[], valid:{type:'resize',height:350}
+};
+document.querySelector('#send').onclick = () => send(payloads[document.querySelector('#payload').value]);
+// Commands only operate the demo controls. They use the same parent identity checks.
+window.addEventListener('message', event => {
+ if(event.origin !== hostOrigin || event.source !== parent || event.data?.type !== 'demo-control') return;
+ if(event.data.action === 'measure') measure();
+ if(event.data.action === 'payload' && Object.hasOwn(payloads,event.data.key)) send(payloads[event.data.key]);
+});
+if (!isSibling) window.addEventListener('load', measure);
+</script>
+</html>
