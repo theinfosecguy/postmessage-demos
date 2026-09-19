@@ -42,7 +42,7 @@ function send(data) {
   parent.postMessage(data, hostOrigin);
   document.querySelector('#status').textContent = 'Message sent to the host.';
 }
-function measure() { send({ type: 'resize', height: Math.ceil(document.querySelector('#content').getBoundingClientRect().height) + 4 }); }
+function measure() { document.querySelector('#status').textContent = 'Message sent to the host.'; send({ type: 'resize', height: Math.ceil(document.querySelector('#content').getBoundingClientRect().height) + 4 }); }
 document.querySelector('#add').onclick = () => {
   const p = document.createElement('p'); p.textContent = 'Another reply has arrived. The widget measures its content and requests a new height.';
   document.querySelector('#extra').append(p); measure();

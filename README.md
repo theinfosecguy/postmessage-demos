@@ -2,6 +2,16 @@
 
 Five editable browser demos for an article about validating iframe resize messages.
 
+## Live demos
+
+1. [The happy path](https://codepen.io/the_infosec_guy/pen/GgWrzgL)
+2. [The wrong origin](https://codepen.io/the_infosec_guy/pen/wBJgNav)
+3. [The right origin, wrong window](https://codepen.io/the_infosec_guy/pen/NPpdoqq)
+4. [Malformed payloads and clamping](https://codepen.io/the_infosec_guy/pen/yyMgZNV)
+5. [The complete handler](https://codepen.io/the_infosec_guy/pen/jEBydPq)
+
+Save changes in a Pen to update its existing article embed. Widget changes are published through this repository. The `public/codepen-N.html` pages are optional prefilled alternatives generated from the repository; they do not modify the saved Pens. `codepen/pens.json` records the saved Pen URLs.
+
 ## Run locally
 
 Run `python3 serve.py`, then open http://localhost:4173/demo-1.html (through demo-5.html).

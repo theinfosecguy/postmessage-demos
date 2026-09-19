@@ -1,0 +1,105 @@
+<div class="codepen" data-prefill="{&quot;title&quot;:&quot;Testing postMessage · Demo 5&quot;}" data-height="920" data-theme-id="light" data-default-tab="result"><pre data-lang="html">&lt;main class=&quot;lab&quot;&gt;
+&lt;header&gt;&lt;p class=&quot;eyebrow&quot; id=&quot;step&quot;&gt;&lt;/p&gt;&lt;h1 id=&quot;title&quot;&gt;&lt;/h1&gt;&lt;p class=&quot;intro&quot; id=&quot;intro&quot;&gt;&lt;/p&gt;&lt;/header&gt;
+&lt;div class=&quot;toolbar&quot;&gt;&lt;label id=&quot;fix-label&quot;&gt;&lt;input type=&quot;checkbox&quot; id=&quot;fix&quot;&gt; &lt;span id=&quot;fix-text&quot;&gt;&lt;/span&gt;&lt;/label&gt;&lt;span class=&quot;mode&quot; id=&quot;mode&quot;&gt;&lt;/span&gt;&lt;button id=&quot;reset&quot;&gt;Reset demo&lt;/button&gt;&lt;/div&gt;
+&lt;div class=&quot;workspace&quot;&gt;
+&lt;section class=&quot;preview&quot; aria-label=&quot;Live iframe preview&quot;&gt;&lt;div class=&quot;section-heading&quot;&gt;&lt;h2&gt;Host page&lt;/h2&gt;&lt;output id=&quot;height&quot; aria-live=&quot;polite&quot;&gt;Waiting for widget…&lt;/output&gt;&lt;/div&gt;&lt;p class=&quot;origin-line&quot;&gt;Expected widget origin &lt;code id=&quot;expected-origin&quot;&gt;&lt;/code&gt;&lt;/p&gt;&lt;div class=&quot;stage&quot;&gt;&lt;iframe id=&quot;widget&quot; title=&quot;Widget A: trusted resize sender&quot;&gt;&lt;/iframe&gt;&lt;/div&gt;&lt;p class=&quot;hint&quot;&gt;The preview scrolls independently; the iframe itself receives the requested height.&lt;/p&gt;&lt;div id=&quot;attackers&quot;&gt;&lt;iframe id=&quot;hostile&quot; title=&quot;Hostile frame: unexpected origin&quot;&gt;&lt;/iframe&gt;&lt;iframe id=&quot;sibling&quot; title=&quot;Widget B: same origin, different window&quot;&gt;&lt;/iframe&gt;&lt;/div&gt;&lt;div id=&quot;recovery&quot; hidden&gt;&lt;label for=&quot;quick-payload&quot;&gt;Send from A even when it is collapsed&lt;/label&gt;&lt;div class=&quot;quick-row&quot;&gt;&lt;select id=&quot;quick-payload&quot;&gt;&lt;option value=&quot;huge&quot;&gt;height: 1e9&lt;/option&gt;&lt;option value=&quot;negative&quot;&gt;height: -50&lt;/option&gt;&lt;option value=&quot;string&quot;&gt;A bare string&lt;/option&gt;&lt;option value=&quot;null&quot;&gt;null payload&lt;/option&gt;&lt;option value=&quot;missingType&quot;&gt;Missing type&lt;/option&gt;&lt;option value=&quot;wrongType&quot;&gt;Wrong type&lt;/option&gt;&lt;option value=&quot;missingHeight&quot;&gt;Missing height&lt;/option&gt;&lt;option value=&quot;nan&quot;&gt;height: NaN&lt;/option&gt;&lt;option value=&quot;infinity&quot;&gt;height: Infinity&lt;/option&gt;&lt;option value=&quot;numericString&quot;&gt;height: &quot;350&quot;&lt;/option&gt;&lt;option value=&quot;nullHeight&quot;&gt;height: null&lt;/option&gt;&lt;option value=&quot;boolean&quot;&gt;height: true&lt;/option&gt;&lt;option value=&quot;array&quot;&gt;An array&lt;/option&gt;&lt;option value=&quot;valid&quot;&gt;height: 350&lt;/option&gt;&lt;/select&gt;&lt;button id=&quot;quick-send&quot;&gt;Send payload&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;&lt;/section&gt;
+&lt;section class=&quot;log-panel&quot; aria-labelledby=&quot;log-title&quot;&gt;&lt;div class=&quot;section-heading&quot;&gt;&lt;h2 id=&quot;log-title&quot;&gt;Message log&lt;/h2&gt;&lt;button id=&quot;clear&quot;&gt;Clear&lt;/button&gt;&lt;/div&gt;&lt;p class=&quot;hint&quot;&gt;Newest first · actual browser events&lt;/p&gt;&lt;ol id=&quot;log&quot; role=&quot;log&quot; aria-live=&quot;polite&quot; aria-relevant=&quot;additions&quot;&gt;&lt;/ol&gt;&lt;/section&gt;
+&lt;/div&gt;
+&lt;details&gt;&lt;summary&gt;See the active handler&lt;/summary&gt;&lt;pre&gt;&lt;code id=&quot;handler-code&quot;&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/details&gt;
+&lt;footer&gt;Change the handler. Repeat the attack. Read the reason.&lt;/footer&gt;
+&lt;/main&gt;
+</pre><pre data-lang="css">*{box-sizing:border-box}body{margin:0;background:#f8f5ee;color:#29352f;font:15px/1.5 &#39;Avenir Next&#39;,Segoe UI,sans-serif}.lab{max-width:1140px;margin:auto;padding:clamp(16px,3vw,32px)}header{max-width:800px}.eyebrow{text-transform:uppercase;letter-spacing:.13em;font-size:11px;font-weight:700;color:#8d491e;margin:0 0 8px}h1{font:500 clamp(25px,3.5vw,38px)/1.1 Georgia,serif;letter-spacing:-.025em;margin:0 0 12px}p{margin:0 0 12px}.intro{color:#5a625a;max-width:720px}h2{font-size:14px;margin:0}.toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:15px 0;margin:15px 0;border-top:1px solid #d7d9cd;border-bottom:1px solid #d7d9cd}.toolbar&gt;button{margin-left:auto}.mode{font-size:12px;font-weight:700;color:#8d491e}.workspace{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(280px,1fr);gap:25px}.section-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}output{font:600 13px ui-monospace,monospace;color:#386244}.origin-line{font-size:11px;color:#626d60;overflow-wrap:anywhere}.stage{height:320px;overflow:auto;background:repeating-linear-gradient(135deg,#edece4,#edece4 7px,#e6e6dd 7px,#e6e6dd 8px);border:1px solid #adbcae}iframe{display:block;width:100%;border:0}#widget{height:220px;background:#eef5ef}.hint{font-size:12px;color:#657064;margin:8px 0 12px}.log-panel{min-width:0}#log{padding:0;margin:0;list-style:none;height:430px;overflow:auto;border-top:1px solid #c6cdc0}#log li{padding:12px 0;border-bottom:1px solid #d5dbd0;overflow-wrap:anywhere}#log strong{display:block;font-size:13px;font-weight:650}#log small{display:block;font-size:11px;color:#687164;margin-top:4px}#log code{font-size:11px;display:block;margin-top:5px}.accepted strong{color:#2d6842}.rejected strong{color:#aa3427}.clamped strong,.unsafe strong{color:#925518}.info strong{color:#566151}button,select{font:inherit;font-size:13px;border:1px solid #929f8f;border-radius:4px;padding:8px 12px;background:#fffdf6;color:#29352f}button{cursor:pointer}button:hover{background:#e7ecdf}button:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid #b76524;outline-offset:3px}input{accent-color:#386244}label{font-size:13px}#attackers{display:grid;grid-template-columns:1fr;gap:12px}#hostile{height:165px}#sibling{height:235px}#recovery{margin-top:14px}.quick-row{display:flex;gap:8px;margin-top:7px}select{min-width:0;flex:1}details{margin-top:20px;border-top:1px solid #cdd3c4;padding-top:12px}summary{cursor:pointer;font-size:13px;font-weight:600}pre{font-size:12px;line-height:1.65;overflow:auto;background:#eaece2;padding:18px}footer{font-size:11px;color:#6a7265;margin-top:18px}[hidden]{display:none!important}@media(max-width:720px){.workspace{grid-template-columns:1fr}#log{height:255px}.stage{height:280px}.toolbar{gap:9px}.lab{padding:16px}.section-heading{align-items:baseline}h1{font-size:28px}}@media(prefers-reduced-motion:no-preference){button{transition:background .15s ease}}
+
+@media(min-width:721px){.log-panel{position:sticky;top:16px;align-self:start}}
+</pre><pre data-lang="js">window.DEMO_NUMBER = 5;
+(() =&gt; {
+const DEMO = window.DEMO_NUMBER || 5;
+const WIDGET_URL = window.WIDGET_URL || &#39;https://theinfosecguy.github.io/postmessage-demos/public/widget.html&#39;;
+const WIDGET_ORIGIN = new URL(WIDGET_URL).origin;
+const MIN_HEIGHT = 100;
+const MAX_HEIGHT = 1200;
+const $ = selector =&gt; document.querySelector(selector);
+const iframe = $(&#39;#widget&#39;);
+const titles = [&#39;The happy path&#39;,&#39;The wrong origin&#39;,&#39;The right origin. The wrong window.&#39;,&#39;A billion pixels of valid data&#39;,&#39;The handler that says why&#39;];
+const intros = [
+ &#39;Add a reply inside the widget. It measures its content, sends a resize message, and the host accepts it without checking the sender.&#39;,
+ &#39;Send a forged resize from the red frame. Try it before and after enabling the exact origin check.&#39;,
+ &#39;Widget B shares A’s origin. Send from B, then enable the source check to tie resizing to one specific window.&#39;,
+ &#39;These messages really come from widget A. Try malformed data, then enable shape validation and the 100–1200 px clamp.&#39;,
+ &#39;Origin, source, and payload checks are all active. Try each sender and payload; the log explains every decision.&#39;
+];
+$(&#39;#step&#39;).textContent = `postMessage lab / ${String(DEMO).padStart(2,&#39;0&#39;)}`;
+$(&#39;#title&#39;).textContent = titles[DEMO-1]; $(&#39;#intro&#39;).textContent = intros[DEMO-1];
+$(&#39;#expected-origin&#39;).textContent = WIDGET_ORIGIN;
+$(&#39;#fix-label&#39;).hidden = DEMO === 1 || DEMO === 5;
+$(&#39;#fix-text&#39;).textContent = ({2:&#39;Check exact origin&#39;,3:&#39;Check the source window&#39;,4:&#39;Validate payload + clamp height&#39;})[DEMO] || &#39;&#39;;
+$(&#39;#hostile&#39;).hidden = ![2,5].includes(DEMO); $(&#39;#sibling&#39;).hidden = ![3,5].includes(DEMO);
+$(&#39;#recovery&#39;).hidden = DEMO &lt; 4;
+let count = 0;
+function print(value) {
+ if (typeof value === &#39;number&#39; &amp;&amp; !Number.isFinite(value)) return String(value);
+ if (Array.isArray(value)) return &#39;[&#39; + value.map(print).join(&#39;, &#39;) + &#39;]&#39;;
+ if (value &amp;&amp; typeof value === &#39;object&#39;) return &#39;{&#39; + Object.entries(value).map(([k,v]) =&gt; JSON.stringify(k) + &#39;: &#39; + print(v)).join(&#39;, &#39;) + &#39;}&#39;;
+ return JSON.stringify(value);
+}
+function log(kind, message, event) {
+ const item = document.createElement(&#39;li&#39;); item.className = kind;
+ const heading = document.createElement(&#39;strong&#39;); heading.textContent = `${++count}. ${message}`; item.append(heading);
+ if(event) {
+  const meta = document.createElement(&#39;small&#39;);
+  const source = event.source === iframe.contentWindow ? &#39;Widget A&#39; : event.source === $(&#39;#sibling&#39;).contentWindow ? &#39;Widget B&#39; : event.source === $(&#39;#hostile&#39;).contentWindow ? &#39;Hostile frame&#39; : &#39;Other window&#39;;
+  meta.textContent = `${source} · origin: ${event.origin}`; item.append(meta);
+  const payload = document.createElement(&#39;code&#39;); payload.textContent = print(event.data); item.append(payload);
+ }
+ $(&#39;#log&#39;).prepend(item); while($(&#39;#log&#39;).children.length &gt; 40) $(&#39;#log&#39;).lastElementChild.remove();
+}
+function flags() { const fixed = $(&#39;#fix&#39;).checked; return { origin: DEMO &gt;= 3 || (DEMO === 2 &amp;&amp; fixed), source: DEMO &gt;= 4 || (DEMO === 3 &amp;&amp; fixed), payload: DEMO === 5 || (DEMO === 4 &amp;&amp; fixed) }; }
+function apply(height) { iframe.style.height = `${height}px`; $(&#39;#height&#39;).textContent = `A · ${iframe.style.height} requested`; }
+window.addEventListener(&#39;message&#39;, event =&gt; {
+ // Ignore editor/platform chatter. Every event from our three demo frames reaches the handler.
+ if (![iframe.contentWindow,$(&#39;#sibling&#39;).contentWindow,$(&#39;#hostile&#39;).contentWindow].includes(event.source)) return;
+ const checks = flags();
+ if(checks.origin &amp;&amp; event.origin !== WIDGET_ORIGIN) { log(&#39;rejected&#39;,`Rejected: unexpected origin ${event.origin}`,event); return; }
+ if(checks.source &amp;&amp; event.source !== iframe.contentWindow) { log(&#39;rejected&#39;,&#39;Rejected: message came from a different window&#39;,event); return; }
+ const data = event.data;
+ if(!checks.payload) {
+  try { const before = iframe.style.height; apply(data.height); log(&#39;unsafe&#39;, iframe.style.height === before &amp;&amp; `${data.height}px` !== before ? &#39;Unchecked: browser ignored an invalid CSS height&#39; : `Unchecked: resized to ${iframe.style.height}`, event); }
+  catch(error) { log(&#39;unsafe&#39;,`Unchecked handler threw ${error.name}: payload cannot be read`,event); }
+  return;
+ }
+ if(typeof data !== &#39;object&#39; || data === null || Array.isArray(data) || data.type !== &#39;resize&#39;) { log(&#39;rejected&#39;,&#39;Rejected: payload is not a resize message&#39;,event); return; }
+ // Deliberately require a number. Number(null), Number(true), and Number(&#39;&#39;) are finite.
+ if(typeof data.height !== &#39;number&#39; || !Number.isFinite(data.height)) { log(&#39;rejected&#39;,&#39;Rejected: height must be a finite number&#39;,event); return; }
+ const height = Math.min(Math.max(data.height,MIN_HEIGHT),MAX_HEIGHT);
+ apply(height);
+ log(height === data.height ? &#39;accepted&#39; : &#39;clamped&#39;,height === data.height ? `Accepted: resized to ${height}px` : `Clamped: ${data.height} → ${height}px`,event);
+});
+function widgetUrl(role) { const u = new URL(WIDGET_URL); u.searchParams.set(&#39;hostOrigin&#39;,location.origin); u.searchParams.set(&#39;role&#39;,role); u.searchParams.set(&#39;payloads&#39;,DEMO &gt;= 4 ? &#39;1&#39;:&#39;0&#39;); return u.href; }
+function loadFrames() {
+ iframe.style.height = &#39;220px&#39;; $(&#39;#height&#39;).textContent = &#39;A · 220px&#39;;
+ iframe.src = widgetUrl(&#39;primary&#39;);
+ if(!$(&#39;#sibling&#39;).hidden) $(&#39;#sibling&#39;).src = widgetUrl(&#39;sibling&#39;);
+ if(!$(&#39;#hostile&#39;).hidden) {
+  // srcdoc inherits the host origin. On CodePen this differs from the GitHub Pages widget origin.
+  // Standalone same-origin previews use an opaque sandbox origin, shown honestly as &quot;null&quot;.
+  const hostile = $(&#39;#hostile&#39;);
+  hostile.setAttribute(&#39;sandbox&#39;,location.origin === WIDGET_ORIGIN ? &#39;allow-scripts&#39; : &#39;allow-scripts allow-same-origin&#39;);
+  hostile.srcdoc = `&lt;!doctype html&gt;&lt;html lang=&quot;en&quot;&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;body{margin:0;padding:16px;font:14px/1.4 &#39;Avenir Next&#39;,Segoe UI,sans-serif;background:#f9e5dc;color:#7c2e21}h3{margin:0 0 7px;font-size:15px}p{margin:0 0 12px}button{padding:9px;border:1px solid #b25a43;background:#fff6ef;color:#792d21;cursor:pointer}button:focus-visible{outline:3px solid #7c2e21}&lt;/style&gt;&lt;h3&gt;Hostile frame · wrong origin&lt;/h3&gt;&lt;p&gt;This frame asks the host to collapse widget A.&lt;/p&gt;&lt;button onclick=&#39;parent.postMessage({type:&quot;resize&quot;,height:1},${JSON.stringify(location.origin)})&#39;&gt;Send forged resize → 1px&lt;/button&gt;&lt;/html&gt;`;
+ }
+}
+function showCode() {
+ const c = flags(); $(&#39;#mode&#39;).textContent = DEMO===1 ? &#39;No checks&#39; : DEMO===5 ? &#39;All checks active&#39; : $(&#39;#fix&#39;).checked ? &#39;After the fix&#39; : &#39;Before the fix&#39;;
+ let lines = [&quot;window.addEventListener(&#39;message&#39;, (event) =&gt; {&quot;];
+ if(c.origin) lines.push(&quot;  if (event.origin !== WIDGET_ORIGIN) return;&quot;);
+ if(c.source) lines.push(&quot;  if (event.source !== iframe.contentWindow) return;&quot;);
+ if(c.payload) lines.push(&quot;  const data = event.data;&quot;, &quot;  if (typeof data !== &#39;object&#39; || data === null ||&quot;, &quot;      Array.isArray(data) || data.type !== &#39;resize&#39;) return;&quot;, &quot;  if (typeof data.height !== &#39;number&#39; ||&quot;, &quot;      !Number.isFinite(data.height)) return;&quot;, &quot;  const height = Math.min(Math.max(data.height, 100), 1200);&quot;, &quot;  iframe.style.height = `${height}px`;&quot;);
+ else lines.push(&quot;  iframe.style.height = `${event.data.height}px`;&quot;);
+ lines.push(&#39;});&#39;); $(&#39;#handler-code&#39;).textContent = lines.join(&#39;\n&#39;);
+}
+$(&#39;#fix&#39;).onchange = () =&gt; { showCode(); log(&#39;info&#39;,&#39;Handler changed; widget reset. Repeat the same attack.&#39;); loadFrames(); };
+$(&#39;#reset&#39;).onclick = () =&gt; { $(&#39;#log&#39;).replaceChildren(); count=0; loadFrames(); log(&#39;info&#39;,&#39;Reset. Waiting for widget A.&#39;); };
+$(&#39;#clear&#39;).onclick = () =&gt; { $(&#39;#log&#39;).replaceChildren(); count=0; };
+$(&#39;#quick-send&#39;).onclick = () =&gt; iframe.contentWindow.postMessage({type:&#39;demo-control&#39;,action:&#39;payload&#39;,key:$(&#39;#quick-payload&#39;).value},WIDGET_ORIGIN);
+showCode(); loadFrames();
+})();
+</pre></div><script async src="https://public.codepenassets.com/embed/index.js"></script>

@@ -1,0 +1,32 @@
+[
+  {
+    "demo": 1,
+    "title": "The happy path",
+    "editor": "https://codepen.io/the_infosec_guy/pen/GgWrzgL",
+    "embed": "https://codepen.io/the_infosec_guy/embed/GgWrzgL?default-tab=result&theme-id=light"
+  },
+  {
+    "demo": 2,
+    "title": "The wrong origin",
+    "editor": "https://codepen.io/the_infosec_guy/pen/wBJgNav",
+    "embed": "https://codepen.io/the_infosec_guy/embed/wBJgNav?default-tab=result&theme-id=light"
+  },
+  {
+    "demo": 3,
+    "title": "The right origin, wrong window",
+    "editor": "https://codepen.io/the_infosec_guy/pen/NPpdoqq",
+    "embed": "https://codepen.io/the_infosec_guy/embed/NPpdoqq?default-tab=result&theme-id=light"
+  },
+  {
+    "demo": 4,
+    "title": "Malformed payloads and clamping",
+    "editor": "https://codepen.io/the_infosec_guy/pen/yyMgZNV",
+    "embed": "https://codepen.io/the_infosec_guy/embed/yyMgZNV?default-tab=result&theme-id=light"
+  },
+  {
+    "demo": 5,
+    "title": "The complete handler",
+    "editor": "https://codepen.io/the_infosec_guy/pen/jEBydPq",
+    "embed": "https://codepen.io/the_infosec_guy/embed/jEBydPq?default-tab=result&theme-id=light"
+  }
+]
