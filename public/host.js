@@ -22,11 +22,32 @@ $('#fix-text').textContent = ({2:'Check exact origin',3:'Check the source window
 $('#hostile').hidden = ![2,5].includes(DEMO); $('#sibling').hidden = ![3,5].includes(DEMO);
 $('#recovery').hidden = DEMO < 4;
 let count = 0;
+// Structured clone can deliver cycles, BigInt, Date, Map, and Set. The formatter
+// must survive all of them, so it tracks visited objects and bounds depth,
+// entries per object, and total output length.
+const PRINT_DEPTH = 4, PRINT_ENTRIES = 12, PRINT_LENGTH = 600;
 function print(value) {
+ const text = format(value, new Set(), 0);
+ return text.length > PRINT_LENGTH ? `${text.slice(0, PRINT_LENGTH)} … (${text.length} chars)` : text;
+}
+function format(value, seen, depth) {
+ if (typeof value === 'bigint') return `${value}n`;
  if (typeof value === 'number' && !Number.isFinite(value)) return String(value);
- if (Array.isArray(value)) return '[' + value.map(print).join(', ') + ']';
- if (value && typeof value === 'object') return '{' + Object.entries(value).map(([k,v]) => JSON.stringify(k) + ': ' + print(v)).join(', ') + '}';
- return JSON.stringify(value);
+ if (value instanceof Date) return value.toISOString();
+ if (value instanceof Map || value instanceof Set) return `${value.constructor.name}(${value.size})`;
+ if (value && typeof value === 'object') {
+  if (seen.has(value)) return '[circular]';
+  if (depth >= PRINT_DEPTH) return Array.isArray(value) ? '[…]' : '{…}';
+  seen.add(value);
+  const entries = Array.isArray(value)
+   ? value.slice(0, PRINT_ENTRIES).map(v => format(v, seen, depth + 1))
+   : Object.entries(value).slice(0, PRINT_ENTRIES).map(([k, v]) => `${JSON.stringify(k)}: ${format(v, seen, depth + 1)}`);
+  const total = Array.isArray(value) ? value.length : Object.keys(value).length;
+  if (total > PRINT_ENTRIES) entries.push(`… ${total - PRINT_ENTRIES} more`);
+  seen.delete(value);
+  return Array.isArray(value) ? `[${entries.join(', ')}]` : `{${entries.join(', ')}}`;
+ }
+ return String(JSON.stringify(value));
 }
 function log(kind, message, event) {
  const item = document.createElement('li'); item.className = kind;
@@ -74,7 +95,7 @@ function loadFrames() {
  }
 }
 function showCode() {
- const c = flags(); $('#mode').textContent = DEMO===1 ? 'No checks' : DEMO===5 ? 'All checks active' : $('#fix').checked ? 'After the fix' : 'Before the fix';
+ const c = flags(); $('#mode').textContent = (DEMO===1 ? 'No checks' : DEMO===5 ? 'All checks active' : $('#fix').checked ? 'After the fix' : 'Before the fix') + ' · core excerpt';
  let lines = ["window.addEventListener('message', (event) => {"];
  if(c.origin) lines.push("  if (event.origin !== WIDGET_ORIGIN) return;");
  if(c.source) lines.push("  if (event.source !== iframe.contentWindow) return;");
