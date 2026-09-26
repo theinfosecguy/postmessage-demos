@@ -36,11 +36,32 @@ $(&#39;#fix-text&#39;).textContent = ({2:&#39;Check exact origin&#39;,3:&#39;Che
 $(&#39;#hostile&#39;).hidden = ![2,5].includes(DEMO); $(&#39;#sibling&#39;).hidden = ![3,5].includes(DEMO);
 $(&#39;#recovery&#39;).hidden = DEMO &lt; 4;
 let count = 0;
+// Structured clone can deliver cycles, BigInt, Date, Map, and Set. The formatter
+// must survive all of them, so it tracks visited objects and bounds depth,
+// entries per object, and total output length.
+const PRINT_DEPTH = 4, PRINT_ENTRIES = 12, PRINT_LENGTH = 600;
 function print(value) {
+ const text = format(value, new Set(), 0);
+ return text.length &gt; PRINT_LENGTH ? `${text.slice(0, PRINT_LENGTH)} … (${text.length} chars)` : text;
+}
+function format(value, seen, depth) {
+ if (typeof value === &#39;bigint&#39;) return `${value}n`;
  if (typeof value === &#39;number&#39; &amp;&amp; !Number.isFinite(value)) return String(value);
- if (Array.isArray(value)) return &#39;[&#39; + value.map(print).join(&#39;, &#39;) + &#39;]&#39;;
- if (value &amp;&amp; typeof value === &#39;object&#39;) return &#39;{&#39; + Object.entries(value).map(([k,v]) =&gt; JSON.stringify(k) + &#39;: &#39; + print(v)).join(&#39;, &#39;) + &#39;}&#39;;
- return JSON.stringify(value);
+ if (value instanceof Date) return Number.isNaN(value.getTime()) ? &#39;Invalid Date&#39; : value.toISOString();
+ if (value instanceof Map || value instanceof Set) return `${value.constructor.name}(${value.size})`;
+ if (value &amp;&amp; typeof value === &#39;object&#39;) {
+  if (seen.has(value)) return &#39;[circular]&#39;;
+  if (depth &gt;= PRINT_DEPTH) return Array.isArray(value) ? &#39;[…]&#39; : &#39;{…}&#39;;
+  seen.add(value);
+  const entries = Array.isArray(value)
+   ? value.slice(0, PRINT_ENTRIES).map(v =&gt; format(v, seen, depth + 1))
+   : Object.entries(value).slice(0, PRINT_ENTRIES).map(([k, v]) =&gt; `${JSON.stringify(k)}: ${format(v, seen, depth + 1)}`);
+  const total = Array.isArray(value) ? value.length : Object.keys(value).length;
+  if (total &gt; PRINT_ENTRIES) entries.push(`… ${total - PRINT_ENTRIES} more`);
+  seen.delete(value);
+  return Array.isArray(value) ? `[${entries.join(&#39;, &#39;)}]` : `{${entries.join(&#39;, &#39;)}}`;
+ }
+ return String(JSON.stringify(value));
 }
 function log(kind, message, event) {
  const item = document.createElement(&#39;li&#39;); item.className = kind;
@@ -88,7 +109,7 @@ function loadFrames() {
  }
 }
 function showCode() {
- const c = flags(); $(&#39;#mode&#39;).textContent = DEMO===1 ? &#39;No checks&#39; : DEMO===5 ? &#39;All checks active&#39; : $(&#39;#fix&#39;).checked ? &#39;After the fix&#39; : &#39;Before the fix&#39;;
+ const c = flags(); $(&#39;#mode&#39;).textContent = (DEMO===1 ? &#39;No checks&#39; : DEMO===5 ? &#39;All checks active&#39; : $(&#39;#fix&#39;).checked ? &#39;After the fix&#39; : &#39;Before the fix&#39;) + &#39; · core excerpt&#39;;
  let lines = [&quot;window.addEventListener(&#39;message&#39;, (event) =&gt; {&quot;];
  if(c.origin) lines.push(&quot;  if (event.origin !== WIDGET_ORIGIN) return;&quot;);
  if(c.source) lines.push(&quot;  if (event.source !== iframe.contentWindow) return;&quot;);

@@ -33,7 +33,7 @@ function print(value) {
 function format(value, seen, depth) {
  if (typeof value === 'bigint') return `${value}n`;
  if (typeof value === 'number' && !Number.isFinite(value)) return String(value);
- if (value instanceof Date) return value.toISOString();
+ if (value instanceof Date) return Number.isNaN(value.getTime()) ? 'Invalid Date' : value.toISOString();
  if (value instanceof Map || value instanceof Set) return `${value.constructor.name}(${value.size})`;
  if (value && typeof value === 'object') {
   if (seen.has(value)) return '[circular]';

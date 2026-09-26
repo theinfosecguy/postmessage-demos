@@ -54,4 +54,6 @@ The strict payload handler requires a finite **number** and rejects arrays. It d
 
 ## Browser checks
 
+Run `node --test tests/formatter.test.mjs` for the structured-clone logging regressions, including invalid dates, cycles, and BigInt.
+
 See `tests/manual-checks.md` for the repeatable browser test matrix.
